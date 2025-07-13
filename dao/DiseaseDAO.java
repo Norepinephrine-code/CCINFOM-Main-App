@@ -1,8 +1,7 @@
 package dao;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import model.Disease;
 
@@ -56,7 +55,7 @@ public class DiseaseDAO {
         stmt.setString(3, disease.getClassification());
         stmt.setString(4, disease.getIcdCode());
         stmt.setInt(5, disease.getDiseaseId());
-        
+
         return stmt.executeUpdate() > 0;
     }
 

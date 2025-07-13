@@ -1,8 +1,8 @@
 package dao;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 import model.MedicalHistory;
 
 public class MedicalHistoryDAO {
@@ -54,7 +54,7 @@ public class MedicalHistoryDAO {
      * The history object should already contain updated values.
     */
     public boolean update(MedicalHistory history) throws SQLException {
-        
+
         String sql = "UPDATE medical_history SET patient_id = ?, doctor_id = ?, condition_id = ?, description = ?, date_recorded = ? WHERE history_id = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
 
