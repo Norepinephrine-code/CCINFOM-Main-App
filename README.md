@@ -175,19 +175,6 @@ Using just a `boolean` doesn’t tell us **why** something failed. With `Service
 ---
 
 ## 🔧 Tech Stack
-
-- Java SE
 - JDBC
-- MySQL or SQLite
-- Swing / JavaFX
-
----
-
-## 🚀 Future Features
-
-- Audit logs
-- Pagination for patient list
-- Import/Export CSV
-- Authentication system
-
----
+- MySQL
+- Swing
