@@ -94,9 +94,9 @@ public class DiseaseDAO {
             String disease_name = rs.getString("disease_name");
             String description = rs.getString("description");
             String classification = rs.getString("classficiation");
-            String icd-code = rs.getString("icd-code");
+            String icdCode = rs.getString("icd-code");
 
-            return new Disease(disease_id, disease_name, description, classification, icd);
+            return new Disease(disease_id, disease_name, description, classification, icdCode);
         }
 
         return null;
