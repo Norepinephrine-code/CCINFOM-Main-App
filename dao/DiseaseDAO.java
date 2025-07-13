@@ -1,8 +1,10 @@
 package dao;
 
 import java.sql.*;
-import java.util.*;
-import model.YourEntity;
+import java.util.ArrayList;
+import java.util.List;
+
+import model.Disease;
 
 public class DiseaseDAO {
     private final Connection conn;
@@ -11,102 +13,77 @@ public class DiseaseDAO {
         this.conn = conn;
     }
 
-    public boolean insert (Disease disease) throws SQLException {
-        String sql = "INSERT INTO disease (disease_id, disease_name, description, classification, icd-code) VALUES (?,?,?,?,?)";
+    // Insert new disease and set generated ID
+    public boolean insert(Disease disease) throws SQLException {
+        String sql = "INSERT INTO disease (disease_name, description, classification, icd_code) VALUES (?,?,?,?)";
         PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        stmt.setString(1, disease.getDiseaseName());
+        stmt.setString(2, disease.getDescription());
+        stmt.setString(3, disease.getClassification());
+        stmt.setString(4, disease.getIcdCode());
 
-        stmt.setInt(1, disease.getDiseaseId());
-        stmt.setString(2, disease.getDiseaseName());
-        stmt.setString(3, disease.getDescription());
-        stmt.setString(4, disease.getClassification());
-        stmt.setString(5, disease.getIcdCode());
-
-        int row = stmt.executeUpdate();
-
-        if (row>0) {
+        int rows = stmt.executeUpdate();
+        if (rows > 0) {
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 disease.setDiseaseId(rs.getInt(1));
             }
-
             return true;
         }
         return false;
     }
 
-    public boolean delete (int id) throws SQLException { 
-        
+    // Delete disease by ID
+    public boolean delete(int id) throws SQLException {
         String sql = "DELETE FROM disease WHERE disease_id = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
-
         stmt.setInt(1, id);
-
-        int row = stmt.executeUpdate();
-        
-        return row > 0;
+        return stmt.executeUpdate() > 0;
     }
 
-    public boolean update (Disease disease) throws SQLException {
-        String sql = "UPDATE disease SET disease_name = ?, description = ?, classification = ?, `icd-code` = ? WHERE disease_id = ?";
+    // Update an existing disease
+    public boolean update(Disease disease) throws SQLException {
+        String sql = "UPDATE disease SET disease_name = ?, description = ?, classification = ?, icd_code = ? WHERE disease_id = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
-
         stmt.setString(1, disease.getDiseaseName());
         stmt.setString(2, disease.getDescription());
         stmt.setString(3, disease.getClassification());
         stmt.setString(4, disease.getIcdCode());
         stmt.setInt(5, disease.getDiseaseId());
-
         return stmt.executeUpdate() > 0;
-
     }
 
+    // Retrieve all diseases
     public List<Disease> getAll() throws SQLException {
-
         List<Disease> diseases = new ArrayList<>();
-
-        String sql = "SELECT * FROM disease";       
-        Statement stmt = conn.createStatement();    
-        ResultSet rs = stmt.executeQuery(sql);    
-        
-        while (rs.next()) {         // <----- MOVE THE CURSOR FROM BEGINNING UNTIL FUCKING END
-            int disease_id = rs.getInt("disease_id");
-            String disease_name = rs.getString("disease_name");
+        String sql = "SELECT * FROM disease";
+        Statement stmt = conn.createStatement();
+        ResultSet rs = stmt.executeQuery(sql);
+        while (rs.next()) {
+            int id = rs.getInt("disease_id");
+            String name = rs.getString("disease_name");
             String description = rs.getString("description");
-            String classification = rs.getString("classficiation");
-            String icd-code = rs.getString("icd-code");
-        
-            diseases.add(new Disease(disease_id, disease_name, description, classification, icd));
+            String classification = rs.getString("classification");
+            String icd = rs.getString("icd_code");
+            diseases.add(new Disease(id, name, description, classification, icd));
         }
         return diseases;
-
     }
 
-    public Disease getById (int id) throws SQLException { 
-
+    // Retrieve disease by ID
+    public Disease getById(int id) throws SQLException {
         String sql = "SELECT * FROM disease WHERE disease_id = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
         stmt.setInt(1, id);
-
         ResultSet rs = stmt.executeQuery();
-
-        if (rs.next()) { // <------- MOVES THE CURSOR ONCE
-            int disease_id = rs.getInt("disease_id");
-            String disease_name = rs.getString("disease_name");
+        if (rs.next()) {
+            String name = rs.getString("disease_name");
             String description = rs.getString("description");
             String classification = rs.getString("classficiation");
-            String icdCode = rs.getString("icd-code");
+            String icd-code = rs.getString("icd-code");
 
-            return new Disease(disease_id, disease_name, description, classification, icdCode);
+            return new Disease(disease_id, disease_name, description, classification, icd);
         }
-
         return null;
-
     }
-
-    // insert
-    // delete
-    // update
-    // getAll
-    // getById
-    
 }

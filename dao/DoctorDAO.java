@@ -12,12 +12,11 @@ public class DoctorDAO {
     }
 
     public boolean insert(Doctor doctor) throws SQLException {
-        String sql = "INSERT INTO doctor (doctor_id, full_name, specialization) VALUES (?,?,?)";
+        String sql = "INSERT INTO doctor (full_name, specialization) VALUES (?, ?)";
         PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-    
-        stmt.setInt(1, doctor.getDoctorId());
-        stmt.setString(2, doctor.getFullName());
-        stmt.setString(3, doctor.getSpecialization());
+
+        stmt.setString(1, doctor.getFullName());
+        stmt.setString(2, doctor.getSpecialization());
 
         int row = stmt.executeUpdate();
 
@@ -96,9 +95,4 @@ public class DoctorDAO {
 
 
 
-    // insert
-    // delete
-    // update
-    // getAll
-    // getById
 }
