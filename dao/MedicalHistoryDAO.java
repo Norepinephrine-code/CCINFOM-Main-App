@@ -3,7 +3,6 @@ package dao;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 import model.MedicalHistory;
 
 public class MedicalHistoryDAO {
@@ -18,6 +17,7 @@ public class MedicalHistoryDAO {
         String sql = "INSERT INTO medical_history (patient_id, doctor_id, condition_id, description, date_recorded) VALUES (?,?,?,?,?)";
         PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         stmt.setInt(1, history.getPatientId());
+
         if (history.getDoctorId() != null) {
             stmt.setInt(2, history.getDoctorId());
         } else {

@@ -57,11 +57,16 @@ public class DiagnosisDAO {
 
     // Retrieve all diagnoses
     public List<Diagnosis> getAll() throws SQLException {
-        List<Diagnosis> list = new ArrayList<>();
+
+        List<Diagnosis> diagnosises = new ArrayList<>();
+
         String sql = "SELECT * FROM diagnosis";
         Statement stmt = conn.createStatement();
+
         ResultSet rs = stmt.executeQuery(sql);
+
         while (rs.next()) {
+
             int id = rs.getInt("diagnosis_id");
             int patientId = rs.getInt("patient_id");
             int doctorId = rs.getInt("doctor_id");
@@ -70,7 +75,8 @@ public class DiagnosisDAO {
             String notes = rs.getString("notes");
             list.add(new Diagnosis(id, patientId, doctorId, diseaseId, dateDiagnosis, notes));
         }
-        return list;
+
+        return diagnosises;
     }
 
     // Retrieve diagnosis by ID

@@ -61,6 +61,7 @@ public class DoctorDAO {
         ResultSet rs = stmt.executeQuery(sql);
 
         while (rs.next()) {
+            
             int id = rs.getInt("doctor_id");
             String full_name = rs.getString("full_name");
             String specialization = rs.getString("specialization");
