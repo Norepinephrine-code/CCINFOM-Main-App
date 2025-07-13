@@ -12,7 +12,7 @@ src/
 ├── dao/           # All SQL logic (insert, delete, update, etc.)
 ├── dto/           # ServiceResult class for error handling
 ├── controller/    # Business logic and constraints
-└── view/          # GUI code (Swing, JavaFX, etc.)
+└── view/          # GUI code (Swing)
 ```
 
 ---
