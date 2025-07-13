@@ -3,7 +3,6 @@ package dao;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 import model.Diagnosis;
 
 public class DiagnosisDAO {
@@ -38,33 +37,37 @@ public class DiagnosisDAO {
     public boolean delete(int id) throws SQLException {
         String sql = "DELETE FROM diagnosis WHERE diagnosis_id = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
+
         stmt.setInt(1, id);
+
         return stmt.executeUpdate() > 0;
     }
 
     // Update existing diagnosis
     public boolean update(Diagnosis diagnosis) throws SQLException {
         String sql = "UPDATE diagnosis SET patient_id = ?, doctor_id = ?, disease_id = ?, date_diagnosis = ?, notes = ? WHERE diagnosis_id = ?";
+        
         PreparedStatement stmt = conn.prepareStatement(sql);
+
         stmt.setInt(1, diagnosis.getPatientId());
         stmt.setInt(2, diagnosis.getDoctorId());
         stmt.setInt(3, diagnosis.getDiseaseId());
         stmt.setDate(4, diagnosis.getDateDiagnosis());
         stmt.setString(5, diagnosis.getNotes());
         stmt.setInt(6, diagnosis.getDiagnosisId());
+
         return stmt.executeUpdate() > 0;
     }
 
     // Retrieve all diagnoses
     public List<Diagnosis> getAll() throws SQLException {
 
-        List<Diagnosis> diagnosises = new ArrayList<>();
-
         String sql = "SELECT * FROM diagnosis";
         Statement stmt = conn.createStatement();
 
         ResultSet rs = stmt.executeQuery(sql);
 
+        List<Diagnosis> diagnosises = new ArrayList<>();
         while (rs.next()) {
 
             int id = rs.getInt("diagnosis_id");
@@ -73,7 +76,7 @@ public class DiagnosisDAO {
             int diseaseId = rs.getInt("disease_id");
             Date dateDiagnosis = rs.getDate("date_diagnosis");
             String notes = rs.getString("notes");
-            list.add(new Diagnosis(id, patientId, doctorId, diseaseId, dateDiagnosis, notes));
+            diagnosises.add(new Diagnosis(id, patientId, doctorId, diseaseId, dateDiagnosis, notes));
         }
 
         return diagnosises;

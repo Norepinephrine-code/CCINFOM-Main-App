@@ -58,6 +58,7 @@ public class DoctorDAO {
         List<Doctor> doctors = new ArrayList<>();
         String sql = "SELECT * FROM doctor";
         Statement stmt = conn.createStatement();
+        
         ResultSet rs = stmt.executeQuery(sql);
 
         while (rs.next()) {

@@ -3,7 +3,6 @@ package dao;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 import model.LabProcedure;
 
 public class LabProcedureDAO {
@@ -68,12 +67,14 @@ public class LabProcedureDAO {
         ResultSet rs = stmt.executeQuery(sql);
 
      List<LabProcedure> labProcedures = new ArrayList<>();
+
         while (rs.next()) {
+
             int id = rs.getInt("procedure_id");
             String name = rs.getString("name");
             String category = rs.getString("category");
             java.math.BigDecimal cost = rs.getBigDecimal("cost");
-            list.add(new LabProcedure(id, name, category, cost));
+            labProcedures.add(new LabProcedure(id, name, category, cost));
         }
         return labProcedures;
     }

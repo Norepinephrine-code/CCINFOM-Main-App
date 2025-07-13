@@ -3,7 +3,6 @@ package dao;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
 import model.LabResult;
 
 public class LabResultDAO {
@@ -39,6 +38,7 @@ public class LabResultDAO {
 
     // Delete lab result by ID
     public boolean delete(int id) throws SQLException {
+
         String sql = "DELETE FROM lab_result WHERE lab_result_id = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
       
@@ -64,6 +64,7 @@ public class LabResultDAO {
 
     // Retrieve all lab results
     public List<LabResult> getAll() throws SQLException {
+
         String sql = "SELECT * FROM lab_result";
         Statement stmt = conn.createStatement();
 
@@ -78,13 +79,14 @@ public class LabResultDAO {
             int procedureId = rs.getInt("procedure_id");
             String resultText = rs.getString("result");
             Date date = rs.getDate("date");
-            list.add(new LabResult(id, orderingPhysicianId, patientId, procedureId, resultText, date));
+            labResults.add(new LabResult(id, orderingPhysicianId, patientId, procedureId, resultText, date));
         }
         return labResults;
     }
 
     // Retrieve lab result by ID
     public LabResult getById(int id) throws SQLException {
+
         String sql = "SELECT * FROM lab_result WHERE lab_result_id = ?";
         PreparedStatement stmt = conn.prepareStatement(sql);
 
