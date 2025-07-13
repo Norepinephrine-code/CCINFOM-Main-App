@@ -91,18 +91,18 @@ Useful for error handling at the controller and GUI level.
 
 ```java
 public class ServiceResult {
-    private boolean success;
+    private boolean status;
     private String message;
 
-    public ServiceResult(boolean success, String message) {
-        this.success = success;
+    public ServiceResult(boolean status, String message) {
+        this.status = status;
         this.message = message;
     }
 
-    public boolean isSuccess() { return success; }
+    public boolean getStatus() { return status; }
     public String getMessage() { return message; }
 
-    public void setSuccess(boolean success) { this.success = success; }
+    public void setStatus(boolean status) { this.status = status; }
     public void setMessage(String message) { this.message = message; }
 }
 ```
