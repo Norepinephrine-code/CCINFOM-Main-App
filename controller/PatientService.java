@@ -17,6 +17,8 @@ public class PatientService {
 
     /**
      * Adds a new patient after validating fields.
+     * Constraints:
+     * 1. No duplicate entry
      */
     public ServiceResult addPatient(Patient patient) {
         if (!isValidFields(patient)) {
@@ -25,8 +27,6 @@ public class PatientService {
             return new ServiceResult(false, msg);
         }
 
-        // Optional: Duplicate check logic here (first name + last name + dob match)
-
         try {
             boolean success = patientDAO.insert(patient);
             if (success) {
@@ -34,27 +34,34 @@ public class PatientService {
                 logger.info(msg);
                 return new ServiceResult(true, msg);
             } else {
-                return new ServiceResult(false, "Failed to add patient.");
+                String msg = "Failed to add patient.";
+                logger.info(msg);
+                return new ServiceResult(false, msg);
             }
         } catch (SQLException e) {
             String msg = "Failed to insert patient: " + e.getMessage();
+
             logger.severe(msg);
             return new ServiceResult(false, msg);
         }
     }
 
+
     /**
-     * Updates a patient's info.
+     * Constraint:
+     * 1. Make sure that patient exists in the first place
      */
     public ServiceResult updatePatient(Patient patient) {
         if (!isValidFields(patient)) {
             String msg = "Validation failed: Missing required patient fields.";
+
             logger.warning(msg);
             return new ServiceResult(false, msg);
         }
 
         if (!isValidId(patient.getPatientId())) {
             String msg = "Validation failed: Patient ID does not exist.";
+
             logger.warning(msg);
             return new ServiceResult(false, msg);
         }
@@ -63,13 +70,18 @@ public class PatientService {
             boolean success = patientDAO.update(patient);
             if (success) {
                 String msg = "Patient updated: ID " + patient.getPatientId();
+
                 logger.info(msg);
                 return new ServiceResult(true, msg);
             } else {
-                return new ServiceResult(false, "Update failed.");
+                String msg = "Update failed.";
+
+                logger.info(msg);
+                return new ServiceResult(false, msg);
             }
         } catch (SQLException e) {
             String msg = "Failed to update patient: " + e.getMessage();
+
             logger.severe(msg);
             return new ServiceResult(false, msg);
         }

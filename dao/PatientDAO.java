@@ -41,7 +41,7 @@ public class PatientDAO {
         PreparedStatement stmt = conn.prepareStatement(sql);
         stmt.setInt(1, id);
 
-        return stmt.executeUpdate() > 0;
+        return stmt.executeUpdate() > 0;            // RETURN TRUE if it affected a row, FALSE IF WALANG NANGYARE
     }
 
 
