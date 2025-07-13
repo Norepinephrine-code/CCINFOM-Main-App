@@ -1,4 +1,4 @@
-package service;
+package controller;
 
 import dao.PatientDAO;
 import model.Patient;
