@@ -1,4 +1,4 @@
-package service;
+package controller;
 
 import dao.REPORT_LabProcedureDAO;
 import model.REPORT_LabProcedure;
