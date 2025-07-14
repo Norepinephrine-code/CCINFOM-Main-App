@@ -1,6 +1,7 @@
 package controller;
 
 import dao.MedicalHistoryDAO;
+import dao.PatientDAO;
 import dto.ServiceResult;
 import java.sql.*;
 import java.util.*;
@@ -9,10 +10,12 @@ import model.MedicalHistory;
 
 public class MedicalHistoryService {
     private final MedicalHistoryDAO historyDAO;
+    private final PatientDAO patientDAO;
     private static final Logger logger = Logger.getLogger(MedicalHistoryService.class.getName());
 
     public MedicalHistoryService(Connection conn) {
         this.historyDAO = new MedicalHistoryDAO(conn);
+        this.patientDAO = new PatientDAO(conn);
     }
 
     /**
@@ -21,6 +24,11 @@ public class MedicalHistoryService {
     public ServiceResult addMedicalHistory(MedicalHistory history) {
         if (!isValidFields(history)) {
             String msg = "Validation failed: Missing required medical history fields.";
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!patientExists(history.getPatientId())) {
+            String msg = "Invalid patient ID: " + history.getPatientId();
             logger.warning(msg);
             return new ServiceResult(false, msg);
         }
@@ -53,6 +61,11 @@ public class MedicalHistoryService {
 
         if (!isValidId(history.getHistoryId())) {
             String msg = "Validation failed: History ID does not exist.";
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!patientExists(history.getPatientId())) {
+            String msg = "Invalid patient ID: " + history.getPatientId();
             logger.warning(msg);
             return new ServiceResult(false, msg);
         }
@@ -132,6 +145,15 @@ public class MedicalHistoryService {
             return historyDAO.getById(id) != null;
         } catch (SQLException e) {
             logger.severe("Failed to check history ID: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean patientExists(int id) {
+        try {
+            return patientDAO.getById(id) != null;
+        } catch (SQLException e) {
+            logger.severe("Failed to check patient ID: " + e.getMessage());
             return false;
         }
     }

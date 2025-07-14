@@ -1,6 +1,9 @@
 package controller;
 
 import dao.DiagnosisDAO;
+import dao.PatientDAO;
+import dao.DoctorDAO;
+import dao.DiseaseDAO;
 import dto.ServiceResult;
 import java.sql.*;
 import java.util.*;
@@ -9,10 +12,16 @@ import model.Diagnosis;
 
 public class DiagnosisService {
     private final DiagnosisDAO diagnosisDAO;
+    private final PatientDAO patientDAO;
+    private final DoctorDAO doctorDAO;
+    private final DiseaseDAO diseaseDAO;
     private static final Logger logger = Logger.getLogger(DiagnosisService.class.getName());
 
     public DiagnosisService(Connection conn) {
         this.diagnosisDAO = new DiagnosisDAO(conn);
+        this.patientDAO = new PatientDAO(conn);
+        this.doctorDAO = new DoctorDAO(conn);
+        this.diseaseDAO = new DiseaseDAO(conn);
     }
 
     /**
@@ -21,6 +30,21 @@ public class DiagnosisService {
     public ServiceResult addDiagnosis(Diagnosis diagnosis) {
         if (!isValidFields(diagnosis)) {
             String msg = "Validation failed: Missing required diagnosis fields.";
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!patientExists(diagnosis.getPatientId())) {
+            String msg = "Invalid patient ID: " + diagnosis.getPatientId();
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!doctorExists(diagnosis.getDoctorId())) {
+            String msg = "Invalid doctor ID: " + diagnosis.getDoctorId();
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!diseaseExists(diagnosis.getDiseaseId())) {
+            String msg = "Invalid disease ID: " + diagnosis.getDiseaseId();
             logger.warning(msg);
             return new ServiceResult(false, msg);
         }
@@ -53,6 +77,21 @@ public class DiagnosisService {
 
         if (!isValidId(diagnosis.getDiagnosisId())) {
             String msg = "Validation failed: Diagnosis ID does not exist.";
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!patientExists(diagnosis.getPatientId())) {
+            String msg = "Invalid patient ID: " + diagnosis.getPatientId();
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!doctorExists(diagnosis.getDoctorId())) {
+            String msg = "Invalid doctor ID: " + diagnosis.getDoctorId();
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!diseaseExists(diagnosis.getDiseaseId())) {
+            String msg = "Invalid disease ID: " + diagnosis.getDiseaseId();
             logger.warning(msg);
             return new ServiceResult(false, msg);
         }
@@ -132,6 +171,33 @@ public class DiagnosisService {
             return diagnosisDAO.getById(id) != null;
         } catch (SQLException e) {
             logger.severe("Failed to check diagnosis ID: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean patientExists(int id) {
+        try {
+            return patientDAO.getById(id) != null;
+        } catch (SQLException e) {
+            logger.severe("Failed to check patient ID: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean doctorExists(int id) {
+        try {
+            return doctorDAO.getById(id) != null;
+        } catch (SQLException e) {
+            logger.severe("Failed to check doctor ID: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean diseaseExists(int id) {
+        try {
+            return diseaseDAO.getById(id) != null;
+        } catch (SQLException e) {
+            logger.severe("Failed to check disease ID: " + e.getMessage());
             return false;
         }
     }
