@@ -120,7 +120,7 @@ Other services follow the same template and also check that referenced records e
 
 ---
 
-## 🖥️ View
+## 🖥️ In FREAKING PROGRESS +IGNORE+ View
 
 The GUI layer is intentionally minimal.  `MainMenuView` wires up services and displays a few buttons:
 
@@ -134,10 +134,10 @@ public MainMenuView(Connection conn) {
     setSize(400, 300);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
     setLayout(new GridLayout(4, 1, 10, 10));
-    JButton patientBtn   = new JButton("🧍 Patients");
-    JButton doctorBtn    = new JButton("👨‍⚕️ Doctors");
-    JButton diseaseBtn   = new JButton("🦠 Diseases");
-    JButton procedureBtn = new JButton("💉 Procedures");
+    JButton patientBtn   = new JButton("Patients");
+    JButton doctorBtn    = new JButton("Doctors");
+    JButton diseaseBtn   = new JButton("Diseases");
+    JButton procedureBtn = new JButton("Procedures");
     add(patientBtn); add(doctorBtn); add(diseaseBtn); add(procedureBtn);
     patientBtn.addActionListener(e -> new PatientView(patientService).setVisible(true));
     doctorBtn.addActionListener(e -> new DoctorView(doctorService).setVisible(true));
