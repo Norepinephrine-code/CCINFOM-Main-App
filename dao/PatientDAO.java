@@ -1,7 +1,8 @@
 package dao;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import model.Patient;
 
@@ -75,7 +76,7 @@ public class PatientDAO {
             String firstName = rs.getString("first_name");
             String lastName = rs.getString("last_name");
             String gender = rs.getString("gender");
-            Date dob = rs.getDate("date_of_birth");
+            java.sql.Date dob = rs.getDate("date_of_birth");
 
             patients.add(new Patient(id, firstName, lastName, gender, dob));
         }
@@ -93,7 +94,7 @@ public class PatientDAO {
             String firstName = rs.getString("first_name");
             String lastName = rs.getString("last_name");
             String gender = rs.getString("gender");
-            Date dob = rs.getDate("date_of_birth");
+            java.sql.Date dob = rs.getDate("date_of_birth");
 
             return new Patient(id, firstName, lastName, gender, dob);
         }

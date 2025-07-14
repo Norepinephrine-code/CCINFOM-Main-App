@@ -1,7 +1,8 @@
 package dao;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import model.Diagnosis;
 
@@ -74,7 +75,7 @@ public class DiagnosisDAO {
             int patientId = rs.getInt("patient_id");
             int doctorId = rs.getInt("doctor_id");
             int diseaseId = rs.getInt("disease_id");
-            Date dateDiagnosis = rs.getDate("date_diagnosis");
+            java.sql.Date dateDiagnosis = rs.getDate("date_diagnosis");
             String notes = rs.getString("notes");
             diagnosises.add(new Diagnosis(id, patientId, doctorId, diseaseId, dateDiagnosis, notes));
         }
@@ -92,7 +93,7 @@ public class DiagnosisDAO {
             int patientId = rs.getInt("patient_id");
             int doctorId = rs.getInt("doctor_id");
             int diseaseId = rs.getInt("disease_id");
-            Date dateDiagnosis = rs.getDate("date_diagnosis");
+            java.sql.Date dateDiagnosis = rs.getDate("date_diagnosis");
             String notes = rs.getString("notes");
             return new Diagnosis(id, patientId, doctorId, diseaseId, dateDiagnosis, notes);
         }

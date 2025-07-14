@@ -1,7 +1,8 @@
 package dao;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import model.MedicalHistory;
 
@@ -91,7 +92,7 @@ public class MedicalHistoryDAO {
             Integer doctorId = rs.getObject("doctor_id") != null ? rs.getInt("doctor_id") : null;
             Integer conditionId = rs.getObject("condition_id") != null ? rs.getInt("condition_id") : null;
             String description = rs.getString("description");
-            Date dateRecorded = rs.getDate("date_recorded");
+            java.sql.Date dateRecorded = rs.getDate("date_recorded");
 
             medicalHistorys.add(new MedicalHistory(id, patientId, doctorId, conditionId, description, dateRecorded));
         }
@@ -110,7 +111,7 @@ public class MedicalHistoryDAO {
             Integer doctorId = rs.getObject("doctor_id") != null ? rs.getInt("doctor_id") : null;
             Integer conditionId = rs.getObject("condition_id") != null ? rs.getInt("condition_id") : null;
             String description = rs.getString("description");
-            Date dateRecorded = rs.getDate("date_recorded");
+            java.sql.Date dateRecorded = rs.getDate("date_recorded");
 
             return new MedicalHistory(id, patientId, doctorId, conditionId, description, dateRecorded);
         }
