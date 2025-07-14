@@ -1,7 +1,8 @@
 package dao;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import model.LabResult;
 
@@ -78,7 +79,7 @@ public class LabResultDAO {
             int patientId = rs.getInt("patient_id");
             int procedureId = rs.getInt("procedure_id");
             String resultText = rs.getString("result");
-            Date date = rs.getDate("date");
+            java.sql.Date date = rs.getDate("date");
             labResults.add(new LabResult(id, orderingPhysicianId, patientId, procedureId, resultText, date));
         }
         return labResults;
@@ -99,7 +100,7 @@ public class LabResultDAO {
             int patientId = rs.getInt("patient_id");
             int procedureId = rs.getInt("procedure_id");
             String resultText = rs.getString("result");
-            Date date = rs.getDate("date");
+            java.sql.Date date = rs.getDate("date");
             return new LabResult(id, orderingPhysicianId, patientId, procedureId, resultText, date);
         }
         return null;
