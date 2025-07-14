@@ -1,6 +1,9 @@
 package controller;
 
 import dao.LabResultDAO;
+import dao.PatientDAO;
+import dao.DoctorDAO;
+import dao.LabProcedureDAO;
 import dto.ServiceResult;
 import java.sql.*;
 import java.util.*;
@@ -9,10 +12,16 @@ import model.LabResult;
 
 public class LabResultService {
     private final LabResultDAO labResultDAO;
+    private final PatientDAO patientDAO;
+    private final DoctorDAO doctorDAO;
+    private final LabProcedureDAO procedureDAO;
     private static final Logger logger = Logger.getLogger(LabResultService.class.getName());
 
     public LabResultService(Connection conn) {
         this.labResultDAO = new LabResultDAO(conn);
+        this.patientDAO = new PatientDAO(conn);
+        this.doctorDAO = new DoctorDAO(conn);
+        this.procedureDAO = new LabProcedureDAO(conn);
     }
 
     /**
@@ -21,6 +30,21 @@ public class LabResultService {
     public ServiceResult addLabResult(LabResult result) {
         if (!isValidFields(result)) {
             String msg = "Validation failed: Missing required lab result fields.";
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!doctorExists(result.getOrderingPhysicianId())) {
+            String msg = "Invalid doctor ID: " + result.getOrderingPhysicianId();
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!patientExists(result.getPatientId())) {
+            String msg = "Invalid patient ID: " + result.getPatientId();
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!procedureExists(result.getProcedureId())) {
+            String msg = "Invalid procedure ID: " + result.getProcedureId();
             logger.warning(msg);
             return new ServiceResult(false, msg);
         }
@@ -53,6 +77,21 @@ public class LabResultService {
 
         if (!isValidId(result.getLabResultId())) {
             String msg = "Validation failed: Lab result ID does not exist.";
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!doctorExists(result.getOrderingPhysicianId())) {
+            String msg = "Invalid doctor ID: " + result.getOrderingPhysicianId();
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!patientExists(result.getPatientId())) {
+            String msg = "Invalid patient ID: " + result.getPatientId();
+            logger.warning(msg);
+            return new ServiceResult(false, msg);
+        }
+        if (!procedureExists(result.getProcedureId())) {
+            String msg = "Invalid procedure ID: " + result.getProcedureId();
             logger.warning(msg);
             return new ServiceResult(false, msg);
         }
@@ -142,6 +181,33 @@ public class LabResultService {
             return labResultDAO.getById(id) != null;
         } catch (SQLException e) {
             logger.severe("Failed to check lab result ID: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean patientExists(int id) {
+        try {
+            return patientDAO.getById(id) != null;
+        } catch (SQLException e) {
+            logger.severe("Failed to check patient ID: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean doctorExists(int id) {
+        try {
+            return doctorDAO.getById(id) != null;
+        } catch (SQLException e) {
+            logger.severe("Failed to check doctor ID: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean procedureExists(int id) {
+        try {
+            return procedureDAO.getById(id) != null;
+        } catch (SQLException e) {
+            logger.severe("Failed to check procedure ID: " + e.getMessage());
             return false;
         }
     }

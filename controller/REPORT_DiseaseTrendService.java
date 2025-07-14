@@ -1,15 +1,17 @@
 package controller;
 
-import java.sql.*;
-import java.util.*;
-import java.util.logging.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.logging.Logger;
 
 import model.REPORT_DiseaseTrend;
 import dao.REPORT_DiseaseTrendDAO;
 
 public class REPORT_DiseaseTrendService {
 
-    private REPORT_DiseaseTrendDAO dao;
+    private static final Logger logger = Logger.getLogger(REPORT_DiseaseTrendService.class.getName());
+    private final REPORT_DiseaseTrendDAO dao;
 
     public REPORT_DiseaseTrendService(Connection connection) {
         this.dao = new REPORT_DiseaseTrendDAO(connection);
@@ -19,7 +21,7 @@ public class REPORT_DiseaseTrendService {
         try {
             return dao.getDiseaseTrendsByPeriod(periodPattern);
         } catch (SQLException e) {
-            String msg = "Failed to insert doctor: " + e.getMessage();
+            String msg = "Failed to generate disease trend report: " + e.getMessage();
             logger.severe(msg);
             return null;
         }

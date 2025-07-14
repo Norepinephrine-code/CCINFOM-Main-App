@@ -5,10 +5,12 @@ import model.REPORT_DoctorActivity;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 public class REPORT_DoctorActivityService {
 
-    private REPORT_DoctorActivityDAO dao;
+    private static final Logger logger = Logger.getLogger(REPORT_DoctorActivityService.class.getName());
+    private final REPORT_DoctorActivityDAO dao;
 
     public REPORT_DoctorActivityService(Connection connection) {
         this.dao = new REPORT_DoctorActivityDAO(connection);
@@ -18,7 +20,8 @@ public class REPORT_DoctorActivityService {
         try {
             return dao.getByDoctorAndPeriod(doctorId, periodPattern);
         } catch (SQLException e) {
-            e.printStackTrace();
+            String msg = "Failed to generate doctor activity report: " + e.getMessage();
+            logger.severe(msg);
             return null;
         }
     }
