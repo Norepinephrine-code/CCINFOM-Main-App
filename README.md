@@ -1,153 +1,163 @@
 # Medical Record Management System - Java MVC Architecture
 
-This project implements a structured Java MVC architecture for managing medical data. It separates logic into clear layers and uses `ServiceResult` to handle errors more effectively throughout the system.
+This repository showcases a compact sample of the Model–View–Controller pattern implemented with plain JDBC and Swing.  Each package in the source tree maps to a layer of the MVC architecture and the classes are small enough to easily trace how data flows from the GUI down to SQL statements.
 
 ---
 
 ## 📁 Folder Structure
 
 ```
-src/
-├── model/         # All 8 data table classes (core + transactional)
-├── dao/           # All SQL logic (insert, delete, update, etc.)
-├── dto/           # ServiceResult class for error handling
-├── controller/    # Business logic and constraints
-└── view/          # GUI code (Swing)
+├── model/       # Java classes representing the database tables
+├── dao/         # JDBC CRUD and report queries
+├── controller/  # Validation and business rules
+├── dto/         # Utility objects like ServiceResult
+├── view/        # Basic Swing windows
+├── AppDriver.java
 ```
 
 ---
 
 ## 🧠 Model
 
-This is where **all 8 database tables** are represented as Java classes with attributes, constructors, getters, and setters.
+The **model** package mirrors the database schema.  Every table has a matching Java class with fields, constructors and convenience helpers.  For example, `Patient` keeps the generated ID in memory and exposes `isPersisted()` and `toString()` for debugging:
 
-### Core Record Tables:
-- `Patient`
-- `Doctor`
-- `Disease`
-- `LabProcedure`
-
-### Transaction Record Tables:
-- `PatientVisit`
-- `LabResult`
-- `MedicalHistory`
-- `Diagnosis`
-
-Each class simply holds the structure of the table.
-
-**Example:**
 ```java
 public class Patient {
-    private int id;
-    private String name;
-    private String birthdate;
-
-    public Patient(int id, String name, String birthdate) {
-        this.id = id;
-        this.name = name;
-        this.birthdate = birthdate;
+    // ... fields omitted for brevity
+    private int patientId = -1;
+    // ... getters/setters
+    public boolean isPersisted() { return patientId > 0; }
+    @Override
+    public String toString() {
+        return patientId + " | " + firstName + " " + lastName +
+               " | Gender: " + gender + " | DOB: " + dateOfBirth;
     }
-
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getBirthdate() { return birthdate; }
-    public void setBirthdate(String birthdate) { this.birthdate = birthdate; }
 }
 ```
+
+The package contains core records (`Patient`, `Doctor`, `Disease`, `LabProcedure`), transactional records (`PatientVisit`, `Diagnosis`, `LabResult`, `MedicalHistory`), and a few simple classes for report rows such as `REPORT_DiseaseTrend`.
 
 ---
 
 ## 🗃️ DAO (Data Access Object)
 
-DAO classes contain all **SQL logic** in reusable methods like:
+Each model has a DAO dedicated to SQL operations.  These classes accept a `java.sql.Connection` and use prepared statements.  Below is the insertion logic from `PatientDAO`:
 
 ```java
-public boolean insert(Patient patient);
-public boolean delete(int id);
-public boolean update(Patient patient);
-public List<Patient> getAll();
-public Patient getById(int id);
+public boolean insert(Patient patient) throws SQLException {
+    String sql = "INSERT INTO patient (first_name, last_name, gender, date_of_birth) VALUES (?, ?, ?, ?)";
+    PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+    stmt.setString(1, patient.getFirstName());
+    stmt.setString(2, patient.getLastName());
+    stmt.setString(3, patient.getGender());
+    stmt.setDate(4, patient.getDateOfBirth());
+    int rows = stmt.executeUpdate();
+    if (rows > 0) {
+        ResultSet rs = stmt.getGeneratedKeys();
+        if (rs.next()) { patient.setPatientId(rs.getInt(1)); }
+        return true;
+    }
+    return false;
+}
 ```
 
-All SQL statements are centralized here to keep database access clean and modular.
+Report DAOs follow the same style.  For instance `REPORT_DiseaseTrendDAO` performs an aggregate query and maps the result set into a list of `REPORT_DiseaseTrend` objects.
 
 ---
 
 ## 📦 DTO (Data Transfer Object)
 
-The DTO package includes:
-
-### `ServiceResult.java`
-
-This class returns both:
-- `boolean success`
-- `String message`
-
-Useful for error handling at the controller and GUI level.
+The **dto** package currently holds a single helper used across the project:
 
 ```java
 public class ServiceResult {
-    private boolean status;
-    private String message;
-
+    private final boolean status;
+    private final String message;
     public ServiceResult(boolean status, String message) {
         this.status = status;
         this.message = message;
     }
-
     public boolean getStatus() { return status; }
     public String getMessage() { return message; }
-
-    public void setStatus(boolean status) { this.status = status; }
-    public void setMessage(String message) { this.message = message; }
 }
 ```
+
+A controller returns a `ServiceResult` so the GUI always receives both a boolean success flag and a readable explanation.
 
 ---
 
 ## 🧩 Controller
 
-The Controller is where **business logic and validation** is applied. It uses the DAO to interact with the database but adds constraints such as:
+Service classes apply validation before calling the DAOs.  `PatientService.addPatient()` demonstrates the pattern:
 
-- Don't insert if a patient already exists
-- Don't delete if the record doesn't exist
-
-It uses `ServiceResult` for returning both the status and reason of success/failure.
-
-**Example:**
 ```java
-public class PatientController {
-    private PatientDAO dao = new PatientDAO();
-
-    public ServiceResult addPatient(Patient patient) {
-        if (dao.exists(patient.getId())) {
-            return new ServiceResult(false, "Patient already exists.");
+public ServiceResult addPatient(Patient patient) {
+    if (!isValidFields(patient)) {
+        String msg = "Validation failed: Missing required patient fields.";
+        logger.warning(msg);
+        return new ServiceResult(false, msg);
+    }
+    try {
+        boolean success = patientDAO.insert(patient);
+        if (success) {
+            String msg = "Patient added successfully: " + patient.getFirstName() + " " + patient.getLastName();
+            logger.info(msg);
+            return new ServiceResult(true, msg);
+        } else {
+            String msg = "Failed to add patient.";
+            logger.info(msg);
+            return new ServiceResult(false, msg);
         }
-
-        boolean success = dao.insert(patient);
-        return success 
-            ? new ServiceResult(true, "Patient successfully added.")
-            : new ServiceResult(false, "Error inserting patient.");
+    } catch (SQLException e) {
+        String msg = "Failed to insert patient: " + e.getMessage();
+        logger.severe(msg);
+        return new ServiceResult(false, msg);
     }
 }
 ```
+
+Other services follow the same template and also check that referenced records exist (e.g. `PatientVisitService` ensures valid patient and doctor IDs).
 
 ---
 
 ## 🖥️ View
 
-The View is the **GUI layer**, using Swing or JavaFX. It listens for user input, then calls the Controller methods and displays the result using `ServiceResult`.
+The GUI layer is intentionally minimal.  `MainMenuView` wires up services and displays a few buttons:
 
-**Example:**
 ```java
-addButton.addActionListener(e -> {
-    Patient patient = new Patient(...); // get data from fields
-    ServiceResult result = controller.addPatient(patient);
-    JOptionPane.showMessageDialog(null, result.getMessage());
+public MainMenuView(Connection conn) {
+    this.patientService = new PatientService(conn);
+    this.doctorService  = new DoctorService(conn);
+    this.diseaseService = new DiseaseService(conn);
+    this.procedureService = new ProcedureService(conn);
+    setTitle("Main Menu");
+    setSize(400, 300);
+    setDefaultCloseOperation(EXIT_ON_CLOSE);
+    setLayout(new GridLayout(4, 1, 10, 10));
+    JButton patientBtn   = new JButton("🧍 Patients");
+    JButton doctorBtn    = new JButton("👨‍⚕️ Doctors");
+    JButton diseaseBtn   = new JButton("🦠 Diseases");
+    JButton procedureBtn = new JButton("💉 Procedures");
+    add(patientBtn); add(doctorBtn); add(diseaseBtn); add(procedureBtn);
+    patientBtn.addActionListener(e -> new PatientView(patientService).setVisible(true));
+    doctorBtn.addActionListener(e -> new DoctorView(doctorService).setVisible(true));
+    diseaseBtn.addActionListener(e -> new DiseaseView(diseaseService).setVisible(true));
+    procedureBtn.addActionListener(e -> new ProcedureView(procedureService).setVisible(true));
+}
+```
+
+Only `PatientView` exists and is just a stub; the other referenced screens have yet to be implemented.
+
+The application starts in `AppDriver` which opens the main menu once a connection is provided:
+
+```java
+SwingUtilities.invokeLater(() -> {
+    Connection conn = DBConnection.getConnection();
+    if (conn != null) {
+        new MainMenuView(conn).setVisible(true);
+    } else {
+        System.out.println("ERROR: Failed to connect to database.");
+    }
 });
 ```
 
@@ -155,26 +165,23 @@ addButton.addActionListener(e -> {
 
 ## ✅ Summary
 
-| Layer       | Responsibility                                           |
-|-------------|---------------------------------------------------------|
-| Model       | Represents database structure                           |
-| DAO         | Contains SQL logic in reusable methods                  |
-| DTO         | Carries status and message using `ServiceResult`        |
-| Controller  | Applies business logic and calls DAO methods            |
-| View        | GUI layer: collects input, shows output, and calls Controller |
+| Layer       | Responsibility                                   |
+|-------------|---------------------------------------------------|
+| Model       | Plain Java objects mirroring database tables      |
+| DAO         | Low-level JDBC operations and report queries      |
+| DTO         | Small helper objects (`ServiceResult`)            |
+| Controller  | Validation, logging and delegation to DAOs        |
+| View        | Swing windows calling controller methods          |
 
 ---
 
 ## 💡 Why use ServiceResult?
 
-Using just a `boolean` doesn’t tell us **why** something failed. With `ServiceResult`, we know both:
-
-- `false` → failure
-- `"Patient already exists"` → reason
+Returning only a boolean would drop the reason for failure.  `ServiceResult` guarantees that every service call explains what happened, making it easier to surface messages in the GUI.
 
 ---
 
 ## 🔧 Tech Stack
-- JDBC
-- MySQL
-- Swing
+
+* JDBC with MySQL
+* Java Swing
