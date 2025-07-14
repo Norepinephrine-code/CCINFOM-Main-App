@@ -68,7 +68,7 @@ public class DiagnosisDAO {
 
         ResultSet rs = stmt.executeQuery(sql);
 
-        List<Diagnosis> diagnosises = new ArrayList<>();
+        List<Diagnosis> diagnoses = new ArrayList<>();
         while (rs.next()) {
 
             int id = rs.getInt("diagnosis_id");
@@ -77,10 +77,10 @@ public class DiagnosisDAO {
             int diseaseId = rs.getInt("disease_id");
             java.sql.Date dateDiagnosis = rs.getDate("date_diagnosis");
             String notes = rs.getString("notes");
-            diagnosises.add(new Diagnosis(id, patientId, doctorId, diseaseId, dateDiagnosis, notes));
+            diagnoses.add(new Diagnosis(id, patientId, doctorId, diseaseId, dateDiagnosis, notes));
         }
 
-        return diagnosises;
+        return diagnoses;
     }
 
     // Retrieve diagnosis by ID

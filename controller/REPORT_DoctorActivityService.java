@@ -1,4 +1,4 @@
-package service;
+package controller;
 
 import dao.REPORT_DoctorActivityDAO;
 import model.REPORT_DoctorActivity;
